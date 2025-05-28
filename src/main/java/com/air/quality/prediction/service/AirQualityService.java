@@ -25,6 +25,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AirQualityService {
@@ -320,4 +321,15 @@ public class AirQualityService {
             logger.info("CSV monitoring directory exists: {}", csvDirectory);
         }
     }
+
+    public List<DailyStatsDTO> getRecentDailyStats(int numberOfDays) {
+        List<LocalDate> dates = airQualityRepository.findAllDistinctDates();
+
+        return dates.stream()
+                .sorted(Comparator.reverseOrder())         // Najnowsze daty najpierw
+                .limit(numberOfDays)                       // Bierzemy tylko ostatnie N dni
+                .map(this::getDailyStats)                  // Tworzymy DTO dla każdej daty
+                .collect(Collectors.toList());
+    }
+
 }

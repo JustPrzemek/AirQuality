@@ -60,4 +60,11 @@ public class AirQualityController {
             return ResponseEntity.badRequest().body("File not found: " + filename);
         }
     }
+
+    @GetMapping("/stats/daily/recent")
+    public ResponseEntity<List<DailyStatsDTO>> getRecentDailyStats() {
+        List<DailyStatsDTO> statsList = airQualityService.getRecentDailyStats(5);
+        return ResponseEntity.ok(statsList);
+    }
+
 }
