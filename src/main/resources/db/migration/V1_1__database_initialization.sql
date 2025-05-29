@@ -31,11 +31,11 @@ CREATE TABLE air_quality_data (
                                   source_file VARCHAR(255) NOT NULL
 );
 
--- Create an index on date for faster queries
+
 CREATE INDEX idx_air_quality_date ON air_quality_data (date);
 
--- Create an index on source_file to quickly check if file was already processed
+
 CREATE INDEX idx_air_quality_source_file ON air_quality_data (source_file);
 
--- Create a composite index on date and time for range queries
+
 CREATE INDEX idx_air_quality_date_time ON air_quality_data (date, time);

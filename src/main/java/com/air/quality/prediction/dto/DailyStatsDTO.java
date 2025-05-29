@@ -1,7 +1,5 @@
 package com.air.quality.prediction.dto;
 
-import lombok.Data;
-
 import java.time.LocalDate;
 import java.util.Map;
 

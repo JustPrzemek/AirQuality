@@ -42,7 +42,7 @@ public class AirQualityService {
         this.airQualityRepository = airQualityRepository;
     }
 
-    @Scheduled(fixedDelay = 60000) // Check every minute
+    @Scheduled(fixedDelay = 60000)
     public void checkForNewFiles() {
         logger.info("Checking for new CSV files in directory: {}", csvDirectory);
 
@@ -69,7 +69,6 @@ public class AirQualityService {
     public void processCsvFile(File file) {
         String filename = file.getName();
 
-        // Check if file has already been processed
         if (airQualityRepository.existsBySourceFile(filename)) {
             logger.info("File {} has already been processed, skipping", filename);
             return;
@@ -81,13 +80,12 @@ public class AirQualityService {
             CSVParser parser = new CSVParserBuilder().withSeparator(',').build();
             CSVReader csvReader = new CSVReaderBuilder(fileReader)
                     .withCSVParser(parser)
-                    .withSkipLines(1) // Skip header row
+                    .withSkipLines(1)
                     .build();
 
             List<String[]> rows = csvReader.readAll();
             List<AirQualityData> dataList = new ArrayList<>();
 
-            // Date and time formatters
             List<DateTimeFormatter> dateFormatters = Arrays.asList(
                     DateTimeFormatter.ofPattern("yyyy-MM-dd"),
                     DateTimeFormatter.ofPattern("dd-MM-yyyy"),
@@ -103,7 +101,7 @@ public class AirQualityService {
             );
 
             for (String[] row : rows) {
-                if (row.length < 28) { // Check if row has all expected columns
+                if (row.length < 28) {
                     logger.warn("Row has insufficient columns ({}): {}", row.length, Arrays.toString(row));
                     continue;
                 }
@@ -111,27 +109,25 @@ public class AirQualityService {
                 AirQualityData data = new AirQualityData();
                 data.setSourceFile(filename);
 
-                // Parse date and time
                 LocalDate date = null;
                 LocalTime time = null;
 
-                // Try to parse date
+
                 for (DateTimeFormatter formatter : dateFormatters) {
                     try {
                         date = LocalDate.parse(row[0].trim(), formatter);
                         break;
                     } catch (DateTimeParseException e) {
-                        // Continue to next formatter
+
                     }
                 }
 
-                // Try to parse time
                 for (DateTimeFormatter formatter : timeFormatters) {
                     try {
                         time = LocalTime.parse(row[1].trim(), formatter);
                         break;
                     } catch (DateTimeParseException e) {
-                        // Continue to next formatter
+
                     }
                 }
 
@@ -143,7 +139,6 @@ public class AirQualityService {
                 data.setDate(date);
                 data.setTime(time);
 
-                // Parse numerical values
                 try {
                     data.setPm25(parseDoubleOrNull(row[2]));
                     data.setPm10(parseDoubleOrNull(row[3]));
@@ -171,7 +166,6 @@ public class AirQualityService {
                     data.setNh3(parseDoubleOrNull(row[25]));
                     data.setEc(parseDoubleOrNull(row[26]));
 
-                    // Handle MRK field
                     if (row.length > 27) {
                         data.setMrk(row[27].trim());
                     } else {
@@ -185,7 +179,6 @@ public class AirQualityService {
                 }
             }
 
-            // Save all data in batches
             if (!dataList.isEmpty()) {
                 logger.info("Saving {} records from file {}", dataList.size(), filename);
                 for (int i = 0; i < dataList.size(); i += 500) {
@@ -265,7 +258,6 @@ public class AirQualityService {
         String minKey = "min" + param.substring(0, 1).toUpperCase() + param.substring(1);
         String maxKey = "max" + param.substring(0, 1).toUpperCase() + param.substring(1);
 
-        // Obsługa wartości średniej
         try {
             Object avgObj = result.get(avgKey);
             if (avgObj != null) {
@@ -279,7 +271,6 @@ public class AirQualityService {
             System.out.println("ERROR processing " + avgKey + ": " + e.getMessage());
         }
 
-        // Obsługa wartości minimalnej
         try {
             Object minObj = result.get(minKey);
             if (minObj != null) {
@@ -293,7 +284,6 @@ public class AirQualityService {
             System.out.println("ERROR processing " + minKey + ": " + e.getMessage());
         }
 
-        // Obsługa wartości maksymalnej
         try {
             Object maxObj = result.get(maxKey);
             if (maxObj != null) {
@@ -326,9 +316,9 @@ public class AirQualityService {
         List<LocalDate> dates = airQualityRepository.findAllDistinctDates();
 
         return dates.stream()
-                .sorted(Comparator.reverseOrder())         // Najnowsze daty najpierw
-                .limit(numberOfDays)                       // Bierzemy tylko ostatnie N dni
-                .map(this::getDailyStats)                  // Tworzymy DTO dla każdej daty
+                .sorted(Comparator.reverseOrder())
+                .limit(numberOfDays)
+                .map(this::getDailyStats)
                 .collect(Collectors.toList());
     }
 

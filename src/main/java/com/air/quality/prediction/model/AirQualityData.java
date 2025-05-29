@@ -1,7 +1,11 @@
 package com.air.quality.prediction.model;
 
-import jakarta.persistence.*;
-import lombok.Data;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -43,14 +47,11 @@ public class AirQualityData {
     private Double ec;
     private String mrk;
 
-    // Filename stored to avoid duplicate processing
     private String sourceFile;
 
-    // Default constructor
     public AirQualityData() {
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

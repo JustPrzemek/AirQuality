@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Repository
 public interface AirQualityRepository extends JpaRepository<AirQualityData, Long> {
@@ -47,11 +46,9 @@ public interface AirQualityRepository extends JpaRepository<AirQualityData, Long
             nativeQuery = true)
     Map<String, Object> getDailyStatsByDateNative(@Param("date") LocalDate date);
 
-    // Count number of records by date
     @Query("SELECT COUNT(a) FROM AirQualityData a WHERE a.date = :date")
     long countByDate(@Param("date") LocalDate date);
 
-    // Get available dates
     @Query("SELECT DISTINCT a.date FROM AirQualityData a ORDER BY a.date")
     List<LocalDate> findAllDistinctDates();
 }

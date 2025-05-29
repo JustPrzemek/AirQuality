@@ -10,15 +10,17 @@ import org.springframework.context.annotation.Bean;
 public class PredictionApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(PredictionApplication.class, args);
+		System.out.println("PM10 Prediction Service started on http://localhost:8080");
+		System.out.println("Endpoint: POST /api/pm10/predictions");
+		System.out.println("Health check: GET /api/pm10/health");
 	}
 
 	@Bean
 	public CommandLineRunner initApplication(AirQualityService airQualityService) {
 		return args -> {
-			// Initialize the CSV directory and start monitoring
 			airQualityService.initCsvDirectory();
-			// Trigger initial file check
 			airQualityService.checkForNewFiles();
 		};
 	}
